@@ -37,5 +37,6 @@ dnf5 -y install zenity
 
 
 # Setup onboarding for all users
+systemctl daemon-reload
 systemctl --global enable onboarding
 
