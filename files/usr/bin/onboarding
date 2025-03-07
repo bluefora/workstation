@@ -37,6 +37,7 @@ typeset -A tweaks
 tweaks=(
 	[stretch-wallpaper]="Stretch Wallpaper to all Monitors"
 	[select-copy]="Enable Copy on Select"
+	[terminal-ctrl-alt]="Open Terminal with ctrl+alt+t"
 )
 
 function tweak-stretch-wallpaper() {
@@ -47,6 +48,14 @@ function tweak-select-copy() {
 	echo "
 [Settings]
 gtk-enable-primary-paste=true" > $HOME/.config/gtk-3.0/settings.ini
+}
+
+
+function tweak-terminal-ctrl-alt() {
+	gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/'
+	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybindings.custom0 binding '<Control><Alt>t'
+	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybindings.custom0 binding command 'ptyxis --new-window'
+	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybindings.custom0 binding name 'Terminal'
 }
 
 
