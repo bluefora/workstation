@@ -1,0 +1,300 @@
+#!/bin/bash
+typeset -A flatpaks
+flatpaks=(
+	[base]="Choose Gnome Applications"
+	[internet]="Choose Internet Applications"
+	[games]="Choose Your Games"
+)
+	
+typeset -A base
+base=(
+	[org.gnome.Calculator]="Calculator"
+	[org.gnome.Loupe]="Photos"
+	[org.gnome.TextEditor]="Text Editor"
+	[org.gnome.Totem]="Video Player"
+)
+
+typeset -A internet
+internet=(
+	[org.mozilla.firefox]="Firefox"
+	[com.google.Chrome]="Google Chrome"
+	[org.filezillaproject.Filezilla]="FileZilla"
+)
+
+typeset -A games
+games=(
+	[com.valvesoftware.Steam]="Steam"
+	[com.mojang.Minecraft]="Minecraft"
+	[org.vinegarhq.Vinegar]="Roblox"
+	[org.prismlauncher.PrismLauncher]="Prism Launcher"
+	[net.minetest.Minetest]="Luanti"
+	[dev.tchx84.Gameeky]="Gameeky"
+)
+
+
+
+typeset -A tweaks
+tweaks=(
+	[stretch-wallpaper]="Stretch Wallpaper to all Monitors"
+	[select-copy]="Enable Copy on Select"
+)
+
+function tweak-stretch-wallpaper() {
+	gsettings set org.gnome.desktop/background picture-options spanned
+}
+
+function tweak-select-copy() {
+	echo "
+[Settings]
+gtk-enable-primary-paste=true" > $HOME/.config/gtk-3.0/settings.ini
+}
+
+
+if [[ -f /etc/onboarding/config ]]; then
+	source /etc/onboarding/config
+fi
+
+
+# Used internally
+typeset -A flatpakInstall
+typeset -A flatpakRemove
+typeset -A flatpakList
+typeset -A tweakInstall
+
+
+touch /tmp/onboarding.sh
+chmod +x /tmp/onboarding.sh
+
+trap cleanup 1 2 3 6
+
+
+function usage() {
+	echo "$0 [option] [option]"
+	echo "  flatpak     Install flatpaks"
+	echo "  tweaks      Install tweaks"
+}
+
+
+function error() {
+	echo -e "\e[31m$@\e[0m"
+}
+
+
+function success() {
+	echo -e "\e[32m$@\e[0m"
+}
+
+
+
+function main() {
+	if [[ $# -gt 0 ]]; then
+		if [[ " ${1} " = " flatpak " ]]; then
+			if [[ $# -eq 2 ]]; then
+				if [[ " ${2} " = " all " ]]; then
+					flatpakSetup all
+				elif [[ " ${!flatpaks[@]} " =~ " ${2} " ]]; then
+					flatpakSetup ${2}
+				else
+					error "${2} not found, try one of the following"
+					echo "  all        Show all flatpak options"
+					
+					for pak in "${!flatpaks[@]}"; do
+						echo "  $pak     ${flatpaks[$pak]}"
+					done
+				fi
+			else
+				flatpakSetup all
+			fi
+		elif [[ " ${1} " = " tweak " ]]; then
+			tweakSetup
+		else
+			error "Invalid option"
+			usage
+			exit 1
+		fi
+	else
+		main flatpak all
+		main tweak
+	fi
+
+}
+
+
+function cleanup() {
+	rm /tmp/onboarding.sh
+}
+
+
+function flatpakSetup() {
+	if [[ $# -eq 1 ]]; then
+		if [[ " ${1} " = " all " ]]; then
+			for id in "${!flatpaks[@]}"; do
+				flatpakWindow ${id}
+			done
+		else
+			flatpakWindow ${1}
+		fi
+	else
+		error "Internal error"
+		exit 5
+	fi
+
+
+	# Create $flatpakList
+	for base in "${!flatpaks[@]}"; do
+		local -n list=${base}
+
+		for flatpak in "${!list[@]}"; do
+			flatpakList[$flatpak]=${list[$flatpak]}
+		done
+	done
+
+
+	# Install selected flatpaks
+	for flatpak in "${!flatpakInstall[@]}"; do
+		flatpakInstall $flatpak
+	done
+
+
+	# remove selected flatpaks
+	for flatpak in "${!flatpakRemove[@]}"; do
+		flatpakUninstall $flatpak
+	done
+}
+
+
+function flatpakWindow() {
+	local list=""
+	local output=""
+	local title=${flatpaks[$1]}
+	local -n apps=${1}
+	local -A installed
+	local -A checked
+	
+	# Loop apps
+	for app in "${!apps[@]}"; do
+		check="FALSE"
+		
+		# Set check and add to $installed variable
+		if flatpak info $app >/dev/null 2>&1 ; then
+			check="TRUE"
+			installed+=($app)
+		fi
+		
+		list="${list} ${check} \"${apps[$app]}\" ${app}"
+	done
+	
+	
+	# Paste command into file, to get get quotes working
+	echo -e "
+	output=\$(zenity --list --checklist \
+		--title \"Onboarding\" --text \"${title}\" \
+		--column=\"Use\" --column=\"Application\" --column=\"app\" \
+		--hide-column=3 --print-column=3 --height=500 \
+		--ok-label=\"Install\" --cancel-label=\"Skip\" ${list} 2>/dev/null)
+	return=\$?
+	echo \$output
+	exit \$return
+	" > /tmp/onboarding.sh
+	
+	# Show GUI
+	if output=$(/tmp/onboarding.sh); then
+		IFS='|' read -a choice <<< "$output"
+
+		# Generate $checked array
+		for app in ${choice[*]}; do
+			checked+=($app)
+		done
+			
+		# Get apps to remove
+		for app in "${!installed[@]}"; do
+			[[ ! " ${!checked[@]} " =~ " ${app} " ]] && flatpakRemove+=($app)
+		done
+		
+		# Get apps to Install
+		for app in "${!checked[@]}"; do
+			[[ ! " ${!installed[@]} " =~ " ${app} " ]] && flatpakInstall+=($app)
+		done
+	fi
+}
+
+
+
+function flatpakInstall() {
+	local flatpak=${1}
+	local title=${flatpakList[$flatpak]}
+	flatpak install $flatpak -y | zenity --progress --title="Installing $title" \
+		--text="Please wait..." --auto-close --no-cancel --pulsate 2>/dev/null
+}
+
+
+
+function flatpakUninstall() {
+	local flatpak=${1}
+	local title=${flatpakList[$flatpak]}
+	flatpak uninstall $flatpak -y | zenity --progress --title="Removing $title" \
+		--text="Please wait..." --auto-close --no-cancel --pulsate 2>/dev/null
+}
+
+
+function tweakSetup() {
+	tweakWindow
+
+	local -i count=0
+
+	( for tweak in "${!tweakInstall[@]}"; do
+		((count++))
+
+		# Run tweak function
+		tweak-$tweak
+
+		if [[ $count -eq $# ]]; then
+			echo 100
+		else
+			echo $(( $count*${#tweaks[@]}/100 ))
+		fi
+	done ) |
+	zenity --progress --title="Installing tweaks" \
+		--text="Setting up ${#tweakInstall[@]} tweaks" \
+		--percentage=0 --auto-close 2>/dev/null
+}
+
+
+function tweakWindow() {
+	local list=""
+	local output=""
+	local title="Selecteer Tweaks om te Installeren"
+	local -A installed
+	local -A checked
+	
+	# Loop apps
+	for tweak in "${!tweaks[@]}"; do
+		list="${list} FALSE \"${tweaks[$tweak]}\" ${tweak}"
+	done
+	
+	
+	# Paste command into file, to get get quotes working
+	echo -e "
+	output=\$(zenity --list --checklist \
+		--title \"Onboarding\" --text \"${title}\" \
+		--column=\"Use\" --column=\"Application\" --column=\"app\" \
+		--hide-column=3 --print-column=3 --height=500 \
+		--ok-label=\"Install\" --cancel-label=\"Skip\" ${list} 2>/dev/null)
+	return=\$?
+	echo \$output
+	exit \$return
+	" > /tmp/onboarding.sh
+	
+	# Show GUI
+	if output=$(/tmp/onboarding.sh); then
+		IFS='|' read -a choice <<< "$output"
+
+		# Generate $tweakInstall array
+		for tweak in ${choice[*]}; do
+			tweakInstall+=($tweak)
+		done
+	fi
+}
+
+
+main $@

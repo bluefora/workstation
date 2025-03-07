@@ -16,19 +16,28 @@ dnf5 -y remove \
 
 
 # Install Apps
-dnf -y install gnome-tweaks gnome-extensions-app
+dnf5 -y install gnome-tweaks gnome-extensions-app
 
 # Install Gnome Extensions
-dnf -y install gnome-shell-extension-appindicator \
+dnf5 -y install gnome-shell-extension-appindicator \
               gnome-shell-extension-blur-my-shell \
               gnome-shell-extension-caffeine \
               gnome-shell-extension-dash-to-panel \
               gnome-shell-extension-just-perfection \
 
 # Install codecs
-dnf -y swap ffmpeg-free ffmpeg --allowerasing
+dnf5 -y swap ffmpeg-free ffmpeg --allowerasing
 
 
-#systemctl enable yafti.service
+# Swap flatpak repos
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak remote-modify --no-filter --enable flathub
+#flatpak install -y --reinstall flathub $(flatpak list --app-runtime=org.fedoraproject.Platform --columns=application | tail -n +1 )
+flatpak remote-delete fedora
 
+dnf5 -y install zenity
+
+
+# Setup onboarding for all users
+systemctl --global enable onboarding
 
