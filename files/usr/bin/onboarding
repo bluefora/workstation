@@ -223,7 +223,7 @@ function flatpakWindow() {
 function flatpakInstall() {
 	local flatpak=${1}
 	local title=${flatpakList[$flatpak]}
-	flatpak install $flatpak -y | zenity --progress --title="Installing $title" \
+	flatpak install --user $flatpak -y | zenity --progress --title="Installing $title" \
 		--text="Please wait..." --auto-close --no-cancel --pulsate 2>/dev/null
 }
 
@@ -232,7 +232,7 @@ function flatpakInstall() {
 function flatpakUninstall() {
 	local flatpak=${1}
 	local title=${flatpakList[$flatpak]}
-	flatpak uninstall $flatpak -y | zenity --progress --title="Removing $title" \
+	flatpak uninstall --user $flatpak -y | zenity --progress --title="Removing $title" \
 		--text="Please wait..." --auto-close --no-cancel --pulsate 2>/dev/null
 }
 
