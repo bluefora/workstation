@@ -1,13 +1,13 @@
 #!/bin/bash
 typeset -A flatpaks
 flatpaks=(
-	[base]="Choose Gnome Applications"
+	[basic]="Choose Gnome Applications"
 	[internet]="Choose Internet Applications"
 	[games]="Choose Your Games"
 )
 	
-typeset -A base
-base=(
+typeset -A basic
+basic=(
 	[org.gnome.Calculator]="Calculator"
 	[org.gnome.Loupe]="Photos"
 	[org.gnome.TextEditor]="Text Editor"
@@ -70,9 +70,11 @@ typeset -A flatpakRemove
 typeset -A flatpakList
 typeset -A tweakInstall
 
+# Create Cache dir
+CACHE="${XDG_CACHE_DIR:-$HOME/.cache}/onboarding"
+mkdir -p $CACHE
 
-touch /tmp/onboarding.sh
-chmod +x /tmp/onboarding.sh
+
 
 trap cleanup 1 2 3 6
 
@@ -130,11 +132,15 @@ function main() {
 
 
 function cleanup() {
-	rm /tmp/onboarding.sh
+	rm -r $CACHE
 }
 
 
 function flatpakSetup() {
+	# Enable flathub
+	flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+	flatpak remote-modify --user --no-filter --enable flathub
+
 	if [[ $# -eq 1 ]]; then
 		if [[ " ${1} " = " all " ]]; then
 			for id in "${!flatpaks[@]}"; do
@@ -176,6 +182,7 @@ function flatpakWindow() {
 	local list=""
 	local output=""
 	local title=${flatpaks[$1]}
+	local base=$1
 	local -n apps=${1}
 	local -A installed
 	local -A checked
@@ -195,7 +202,7 @@ function flatpakWindow() {
 	
 	
 	# Paste command into file, to get get quotes working
-	echo -e "
+	[[ ! -f $CACHE/flatpak.${base} ]] && echo -e "
 	output=\$(zenity --list --checklist \
 		--title \"Onboarding\" --text \"${title}\" \
 		--column=\"Use\" --column=\"Application\" --column=\"app\" \
@@ -204,10 +211,10 @@ function flatpakWindow() {
 	return=\$?
 	echo \$output
 	exit \$return
-	" > /tmp/onboarding.sh
+	" > $CACHE/flatpak.${base}
 	
 	# Show GUI
-	if output=$(/tmp/onboarding.sh); then
+	if output=$(bash $CACHE/flatpak.$base); then
 		IFS='|' read -a choice <<< "$output"
 
 		# Generate $checked array
@@ -283,7 +290,7 @@ function tweakWindow() {
 	
 	
 	# Paste command into file, to get get quotes working
-	echo -e "
+	[[ ! -f $CACHE/tweaks ]] && echo -e "
 	output=\$(zenity --list --checklist \
 		--title \"Onboarding\" --text \"${title}\" \
 		--column=\"Use\" --column=\"Application\" --column=\"app\" \
@@ -292,10 +299,10 @@ function tweakWindow() {
 	return=\$?
 	echo \$output
 	exit \$return
-	" > /tmp/onboarding.sh
+	" > /$CACHE/tweaks
 	
 	# Show GUI
-	if output=$(/tmp/onboarding.sh); then
+	if output=$(bash $CACHE/tweaks); then
 		IFS='|' read -a choice <<< "$output"
 
 		# Generate $tweakInstall array
