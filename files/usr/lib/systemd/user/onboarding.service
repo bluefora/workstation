@@ -2,13 +2,11 @@
 Description=Run onboarding service
 After=network.service
 After=network-online.target
-ConditionPathExists=!%h/.config/onboarding
+ConditionPathExists=!%h/.config/onboarding/disable
 
 [Service]
-ExecStart=/usr/bin/onboarding/disable
+ExecStart=/usr/bin/onboarding
 
-[Timer]
-OnBootSec=1min
 
 [Install]
 WantedBy=default.target
