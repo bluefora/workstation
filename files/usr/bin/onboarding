@@ -166,9 +166,11 @@ function cleanup() {
 
 
 function flatpakSetup() {
-	# Enable flathub
-	flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-	flatpak remote-modify --user --no-filter --enable flathub
+	# Enable flathub - systemd seems to be hanging on this
+	if ! flatpak remotes | grep user | grep flathub >/dev/null; then
+		flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+		flatpak remote-modify --user --no-filter --enable flathub
+	fi
 
 	if [[ $# -eq 1 ]]; then
 		if [[ " ${1} " = " all " ]]; then
