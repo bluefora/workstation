@@ -3,11 +3,13 @@ Description=Run onboarding service
 After=network.service
 After=network-online.target
 ConditionPathExists=!%h/.config/onboarding/disable
-Requires=xdg-desktop-autostart.target
+#Requires=graphical-session.target
 
 [Service]
+#TimeoutStartSec=30
+Restart=on-failure
 ExecStart=/usr/bin/onboarding
 
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
