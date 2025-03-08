@@ -12,6 +12,7 @@ set -ouex pipefail
 # Update release file
 sed -i -e 's/ID=silverblue/ID=workstation/g' /usr/lib/os-release
 sed -i -e 's/Silverblue/CarbonCopy/g' /usr/lib/os-release 
+rpm-ostree ex rebuild
 
 # Cleanup
 dnf5 -y remove \
