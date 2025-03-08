@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Onboarding
+Exec=onboarding
+OnlyShowIn=GNOME;
+AutostartCondition=unless-exists onboarding/disable
