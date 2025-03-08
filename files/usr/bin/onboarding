@@ -38,24 +38,49 @@ tweaks=(
 	[stretch-wallpaper]="Stretch Wallpaper to all Monitors"
 	[select-copy]="Enable Copy on Select"
 	[terminal-ctrl-alt]="Open Terminal with ctrl+alt+t"
+	[disable-onboarding]="Disable onboarding at login"
 )
+
 
 function tweak-stretch-wallpaper() {
 	gsettings set org.gnome.desktop/background picture-options spanned
 }
+function untweak-stretch-wallpaper() {
+	gsettings reset org.gnome.desktop/background picture-options
+}
+
 
 function tweak-select-copy() {
 	echo "
 [Settings]
-gtk-enable-primary-paste=true" > $HOME/.config/gtk-3.0/settings.ini
+gtk-enable-primary-paste=true" >> $HOME/.config/gtk-3.0/settings.ini
+}
+function untweak-select-copy() {
+	rm $HOME/.config/gtk-3.0/settings.ini
 }
 
 
 function tweak-terminal-ctrl-alt() {
-	gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/'
-	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybindings.custom0 binding '<Control><Alt>t'
-	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybindings.custom0 binding command 'ptyxis --new-window'
-	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybindings.custom0 binding name 'Terminal'
+	echo -e "[media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/']
+
+[media-keys/custom-keybindings/terminal]
+binding='<Control><Alt>t'
+command='ptyxis --new-window'
+name='Terminal'
+" > $CACHE/terminal-ctrl-alt.conf
+	dconf load /org/gnome/settings-daemon/plugins/ < $CACHE/terminal-ctrl-alt.conf
+}
+function untweak-terminal-ctrl-alt() {
+	gsettings reset org.gnome.settings-daemon.plugins.media-keys.custom-keybindings terminal
+}
+
+
+function tweak-disable-onboarding() {
+	touch $HOME/.config/onboarding/disable
+}
+function untweak-disable-onboarding() {
+	rm $HOME/.config/onboarding/disable
 }
 
 
@@ -66,14 +91,18 @@ fi
 
 # Used internally
 typeset -A flatpakInstall
-typeset -A flatpakRemove
+typeset -A flatpakUninstall
 typeset -A flatpakList
 typeset -A tweakInstall
+typeset -A tweakUninstall
 
 # Create Cache dir
 CACHE="${XDG_CACHE_DIR:-$HOME/.cache}/onboarding"
 mkdir -p $CACHE
 
+# Create Config dir
+CONFIG=$HOME/.config/onboarding
+mkdir -p $CONFIG
 
 
 trap cleanup 1 2 3 6
@@ -116,7 +145,7 @@ function main() {
 			else
 				flatpakSetup all
 			fi
-		elif [[ " ${1} " = " tweak " ]]; then
+		elif [[ " ${1} " = " tweaks " ]]; then
 			tweakSetup
 		else
 			error "Invalid option"
@@ -125,7 +154,7 @@ function main() {
 		fi
 	else
 		main flatpak all
-		main tweak
+		main tweaks
 	fi
 
 }
@@ -172,7 +201,7 @@ function flatpakSetup() {
 
 
 	# remove selected flatpaks
-	for flatpak in "${!flatpakRemove[@]}"; do
+	for flatpak in "${!flatpakUninstall[@]}"; do
 		flatpakUninstall $flatpak
 	done
 }
@@ -183,6 +212,7 @@ function flatpakWindow() {
 	local output=""
 	local title=${flatpaks[$1]}
 	local base=$1
+	local check=""
 	local -n apps=${1}
 	local -A installed
 	local -A checked
@@ -202,12 +232,12 @@ function flatpakWindow() {
 	
 	
 	# Paste command into file, to get get quotes working
-	[[ ! -f $CACHE/flatpak.${base} ]] && echo -e "
+	echo -e "
 	output=\$(zenity --list --checklist \
 		--title \"Onboarding\" --text \"${title}\" \
 		--column=\"Use\" --column=\"Application\" --column=\"app\" \
 		--hide-column=3 --print-column=3 --height=500 \
-		--ok-label=\"Install\" --cancel-label=\"Skip\" ${list} 2>/dev/null)
+		--ok-label=\"Accept\" --cancel-label=\"Skip\" ${list} 2>/dev/null)
 	return=\$?
 	echo \$output
 	exit \$return
@@ -224,7 +254,7 @@ function flatpakWindow() {
 			
 		# Get apps to remove
 		for app in "${!installed[@]}"; do
-			[[ ! " ${!checked[@]} " =~ " ${app} " ]] && flatpakRemove+=($app)
+			[[ ! " ${!checked[@]} " =~ " ${app} " ]] && flatpakUninstall+=($app)
 		done
 		
 		# Get apps to Install
@@ -263,15 +293,33 @@ function tweakSetup() {
 
 		# Run tweak function
 		tweak-$tweak
+		touch "$CONFIG/$tweak.tweak"
 
-		if [[ $count -eq $# ]]; then
+		if [[ $count -eq ${#tweakInstall[@]} ]]; then
 			echo 100
 		else
 			echo $(( $count*${#tweaks[@]}/100 ))
 		fi
 	done ) |
 	zenity --progress --title="Installing tweaks" \
-		--text="Setting up ${#tweakInstall[@]} tweaks" \
+		--text="Installing ${#tweakInstall[@]} tweaks" \
+		--percentage=0 --auto-close 2>/dev/null
+
+	( for tweak in "${!tweakUninstall[@]}"; do
+		((count++))
+
+		# Run tweak function
+		untweak-$tweak
+		rm "$CONFIG/$tweak.tweak"
+
+		if [[ $count -eq ${#tweakUninstall[@]} ]]; then
+			echo 100
+		else
+			echo $(( $count*${#tweaks[@]}/100 ))
+		fi
+	done ) |
+	zenity --progress --title="Installing tweaks" \
+		--text="Uninstalling ${#tweakUninstall[@]} tweaks" \
 		--percentage=0 --auto-close 2>/dev/null
 }
 
@@ -280,22 +328,30 @@ function tweakWindow() {
 	local list=""
 	local output=""
 	local title="Selecteer Tweaks om te Installeren"
-	local -A installed
-	local -A checked
+	local check=""
+	local -A installed=()
+	local -A checked=()
 	
 	# Loop apps
 	for tweak in "${!tweaks[@]}"; do
-		list="${list} FALSE \"${tweaks[$tweak]}\" ${tweak}"
+		check="FALSE"
+		
+		# Set check and add to $installed variable
+		if [[ -f "$CONFIG/$tweak.tweak" ]]; then
+			check="TRUE"
+			installed+=($tweak)
+		fi
+		list="${list} $check \"${tweaks[$tweak]}\" ${tweak}"
 	done
 	
 	
 	# Paste command into file, to get get quotes working
-	[[ ! -f $CACHE/tweaks ]] && echo -e "
+	echo -e "
 	output=\$(zenity --list --checklist \
 		--title \"Onboarding\" --text \"${title}\" \
 		--column=\"Use\" --column=\"Application\" --column=\"app\" \
 		--hide-column=3 --print-column=3 --height=500 \
-		--ok-label=\"Install\" --cancel-label=\"Skip\" ${list} 2>/dev/null)
+		--ok-label=\"Accept\" --cancel-label=\"Skip\" ${list} 2>/dev/null)
 	return=\$?
 	echo \$output
 	exit \$return
@@ -305,9 +361,18 @@ function tweakWindow() {
 	if output=$(bash $CACHE/tweaks); then
 		IFS='|' read -a choice <<< "$output"
 
-		# Generate $tweakInstall array
 		for tweak in ${choice[*]}; do
-			tweakInstall+=($tweak)
+			checked+=($tweak)
+		done
+			
+		# Get tweaks to remove
+		for tweak in "${!installed[@]}"; do
+			[[ ! " ${!checked[@]} " =~ " ${tweak} " ]] && tweakUninstall+=($tweak)
+		done
+		
+		# Get tweaks to Install
+		for tweak in "${!checked[@]}"; do
+			[[ ! " ${!installed[@]} " =~ " ${tweak} " ]] && tweakInstall+=($tweak)
 		done
 	fi
 }
