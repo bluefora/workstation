@@ -9,6 +9,10 @@ set -ouex pipefail
 # List of rpmfusion packages can be found here:
 # https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/39/x86_64/repoview/index.html&protocol=https&redirect=1
 
+# Update release file
+sed -i -e 's/ID=silverblue/ID=workstation/g' /usr/lib/os-release
+sed -i -e 's/Silverblue/CarbonCopy/g' /usr/lib/os-release 
+
 # Cleanup
 dnf5 -y remove \
     firefox \
