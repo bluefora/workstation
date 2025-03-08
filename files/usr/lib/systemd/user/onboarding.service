@@ -1,11 +1,14 @@
 [Unit]
-Description=Run First boot Script
+Description=Run onboarding service
 After=network.service
 After=network-online.target
 ConditionPathExists=!%h/.config/onboarding
 
 [Service]
-ExecStart=/usr/bin/onboarding
+ExecStart=/usr/bin/onboarding/disable
+
+[Timer]
+OnBootSec=1min
 
 [Install]
 WantedBy=default.target
