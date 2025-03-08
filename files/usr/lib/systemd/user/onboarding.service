@@ -8,7 +8,8 @@ ConditionPathExists=!%h/.config/onboarding/disable
 [Service]
 #TimeoutStartSec=30
 Restart=on-failure
-ExecStart=/usr/bin/onboarding
+ExecStartPre=sleep 10s
+ExecStart=/var/home/eddie/Documents/GitHub/Workstation/files/usr/bin/onboarding
 
 
 [Install]
