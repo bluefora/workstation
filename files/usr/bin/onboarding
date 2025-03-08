@@ -89,6 +89,12 @@ if [[ -f /etc/onboarding/config ]]; then
 fi
 
 
+# /etc/ not updated on a rebase
+if [[ -f /usr/lib/onboarding/config ]]; then
+	source /usr/lib/onboarding/config
+fi
+
+
 # Used internally
 typeset -A flatpakInstall
 typeset -A flatpakUninstall
