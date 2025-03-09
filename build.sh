@@ -39,5 +39,5 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 flatpak remote-modify --no-filter --enable flathub
 
 dnf5 -y install zenity
-
+cp `which zenity` /usr/lib/onboarding/onboardingWindow
 

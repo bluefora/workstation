@@ -241,7 +241,7 @@ function flatpakWindow() {
 	
 	# Paste command into file, to get get quotes working
 	echo -e "
-	output=\$(zenity --list --checklist \
+	output=\$(/usr/lib/onboarding/onboardingWindow --list --checklist \
 		--title \"Onboarding\" --text \"${title}\" \
 		--column=\"Use\" --column=\"Application\" --column=\"app\" \
 		--hide-column=3 --print-column=3 --height=500 \
@@ -277,7 +277,7 @@ function flatpakWindow() {
 function flatpakInstall() {
 	local flatpak=${1}
 	local title=${flatpakList[$flatpak]}
-	flatpak install --user $flatpak -y | zenity --progress --title="Installing $title" \
+	flatpak install --user $flatpak -y | /usr/lib/onboarding/onboardingWindow --progress --title="Installing $title" \
 		--text="Please wait..." --auto-close --no-cancel --pulsate 2>/dev/null
 }
 
@@ -286,7 +286,7 @@ function flatpakInstall() {
 function flatpakUninstall() {
 	local flatpak=${1}
 	local title=${flatpakList[$flatpak]}
-	flatpak uninstall --user $flatpak -y | zenity --progress --title="Removing $title" \
+	flatpak uninstall --user $flatpak -y | /usr/lib/onboarding/onboardingWindow --progress --title="Removing $title" \
 		--text="Please wait..." --auto-close --no-cancel --pulsate 2>/dev/null
 }
 
@@ -309,7 +309,7 @@ function tweakSetup() {
 			echo $(( $count*${#tweaks[@]}/100 ))
 		fi
 	done ) |
-	zenity --progress --title="Installing tweaks" \
+	/usr/lib/onboarding/onboardingWindow --progress --title="Installing tweaks" \
 		--text="Installing ${#tweakInstall[@]} tweaks" \
 		--percentage=0 --auto-close 2>/dev/null
 
@@ -326,7 +326,7 @@ function tweakSetup() {
 			echo $(( $count*${#tweaks[@]}/100 ))
 		fi
 	done ) |
-	zenity --progress --title="Installing tweaks" \
+	/usr/lib/onboarding/onboardingWindow --progress --title="Installing tweaks" \
 		--text="Uninstalling ${#tweakUninstall[@]} tweaks" \
 		--percentage=0 --auto-close 2>/dev/null
 }
@@ -355,7 +355,7 @@ function tweakWindow() {
 	
 	# Paste command into file, to get get quotes working
 	echo -e "
-	output=\$(zenity --list --checklist \
+	output=\$(/usr/lib/onboarding/onboardingWindow --list --checklist \
 		--title \"Onboarding\" --text \"${title}\" \
 		--column=\"Use\" --column=\"Application\" --column=\"app\" \
 		--hide-column=3 --print-column=3 --height=500 \

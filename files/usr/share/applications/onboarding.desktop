@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Onboarding
+Type=Application
+StartupNotify=false
+StartupWMClass=onboardingWindow
+Exec=/usr/bin/onboarding %f
+Icon=/usr/lib/onboarding/icon.svg
+Comment=CarbonCopy Onboarding Service
+Terminal=false
+Categories=GNOME
+
