@@ -29,6 +29,10 @@ dnf5 -y install gnome-shell-extension-appindicator \
               gnome-shell-extension-caffeine \
               gnome-shell-extension-dash-to-panel \
               gnome-shell-extension-just-perfection \
+              gnome-shell-extension-pop-shell
+
+# Don't think it's nesesary, but leaving it here
+# dconf update
 
 # Install codecs
 dnf5 -y swap ffmpeg-free ffmpeg --allowerasing
