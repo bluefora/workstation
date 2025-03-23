@@ -11,7 +11,7 @@ set -ouex pipefail
 
 # Update release file
 sed -i -e 's/ID=silverblue/ID=workstation/g' /usr/lib/os-release
-sed -i -e 's/Silverblue/CarbonOs/g' /usr/lib/os-release 
+sed -i -e 's/Silverblue/Carbonux/g' /usr/lib/os-release 
 rpm-ostree ex rebuild
 
 # Cleanup
