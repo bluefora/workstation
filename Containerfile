@@ -17,10 +17,7 @@ COPY build.sh /tmp/build.sh
 
 COPY rootcopy /
 
-    
-RUN --mount=type=cache,dst=/var/cache \
-    --mount=type=cache,dst=/var/log \
-    --mount=type=tmpfs,dst=/tmp \
+RUN mkdir -p /var/lib/alternatives && \
     /tmp/build.sh && \
     ostree container commit
-
+    
