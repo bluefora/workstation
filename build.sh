@@ -45,3 +45,7 @@ flatpak remote-modify --no-filter --enable flathub
 dnf5 -y install zenity
 cp `which zenity` /usr/lib/onboarding/onboardingWindow
 
+
+# Cleanup unused packages
+dnf5 -y remove nvtop htop
+
