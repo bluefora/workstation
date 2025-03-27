@@ -32,7 +32,7 @@ dnf5 -y install gnome-shell-extension-appindicator \
               gnome-shell-extension-pop-shell
 
 # Don't think it's nesesary, but leaving it here
-# dconf update
+dconf update
 
 # Install codecs
 dnf5 -y swap ffmpeg-free ffmpeg --allowerasing
