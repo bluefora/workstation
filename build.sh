@@ -12,7 +12,7 @@ set -ouex pipefail
 # Update release file
 sed -i -e 's/ID=silverblue/ID=workstation/g' /usr/lib/os-release
 sed -i -e 's/Silverblue/Bluefora/g' /usr/lib/os-release
-sed -i -e 's/Fedora Linux 41 (Workstation Edition)/Bluefora Linux 41 (Workstation Edition)/g' /usr/lib/or-release
+sed -i -e 's/Fedora Linux 41 (Workstation Edition)/Bluefora Linux 41 (Workstation Edition)/g' /usr/lib/os-release
 sed -i -e 's/DEFAULT_HOSTNAME="fedora"/DEFAULT_HOSTNAME="bluefora"/g' /usr/lib/os-release
 
 rpm-ostree ex rebuild
