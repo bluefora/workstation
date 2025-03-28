@@ -11,7 +11,10 @@ set -ouex pipefail
 
 # Update release file
 sed -i -e 's/ID=silverblue/ID=workstation/g' /usr/lib/os-release
-sed -i -e 's/Silverblue/Carbonux/g' /usr/lib/os-release 
+sed -i -e 's/Silverblue/Bluefora/g' /usr/lib/os-release
+sed -i -e 's/Fedora Linux 41 (Workstation Edition)/Bluefora Linux 41 (Workstation Edition)/g' /usr/lib/or-release
+sed -i -e 's/DEFAULT_HOSTNAME="fedora"/DEFAULT_HOSTNAME="bluefora"/g' /usr/lib/os-release
+
 rpm-ostree ex rebuild
 
 # Cleanup
@@ -31,7 +34,12 @@ dnf5 -y install gnome-shell-extension-appindicator \
               gnome-shell-extension-just-perfection \
               gnome-shell-extension-pop-shell
 
-# Don't think it's nesesary, but leaving it here
+# Dconf stuff
+cat > /etc/dconf/db/local.d/00-disable-gnome-tour <<EOF
+[org/gnome/shell]
+welcome-dialog-last-shown-version='$(rpm -qv gnome-shell | cut -d- -f3)'
+EOF
+
 dconf update
 
 # Install codecs

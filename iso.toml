@@ -1,7 +1,7 @@
 [customizations.installer.kickstart]
 contents = """
 %post
-bootc switch --mutate-in-place --transport registry ghcr.io/carbonux/workstation:latest
+bootc switch --mutate-in-place --transport registry ghcr.io/bluefora/workstation:latest
 %end
 """
 
