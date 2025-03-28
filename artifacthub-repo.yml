@@ -3,3 +3,6 @@
 # Examples: https://artifacthub.io/packages/search?ts_query_web=ublue&sort=relevance&page=1 
 
 repositoryID: 4d7721d3-8a61-4b8f-9015-ad7739f22de4 # Fill in with your own credentials 
+owners: # (optional, used to claim repository ownership)
+  - name: Derixithy
+    email: derixithy@usershare.nl 
