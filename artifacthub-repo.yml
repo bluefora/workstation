@@ -2,7 +2,7 @@
 # Sign up and add the Repository ID to the right field. Owners fields are optional.
 # Examples: https://artifacthub.io/packages/search?ts_query_web=ublue&sort=relevance&page=1 
 
-repositoryID: 4d7721d3-8a61-4b8f-9015-ad7739f22de4
+repositoryID: fb2d0b81-48bf-427e-8179-972c620073ff
 owners:
   - name: Derixithy
     email: derixithy@usershare.nl 
