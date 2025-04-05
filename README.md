@@ -1,6 +1,6 @@
 # Download link
-http://s3.usershare.nl/workstation/install.iso
-http://s3.usershare.nl/workstation/install.iso-CHECKSUM
+https://s3.usershare.nl/workstation/install.iso
+https://s3.usershare.nl/workstation/install.iso-CHECKSUM
 They will only be updated occasionally
 
 # Rebase Instructions
