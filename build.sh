@@ -19,6 +19,10 @@ dnf5 -y remove \
     gnome-backgrounds-extras \
     gnome-backgrounds
 
+
+# Get uBlue installer
+dnf5 -y install python3-pip && pip install topgrade && dnf5 -y install /tmp/rpms/ublue-update.noarch.rpm
+
 files=(flight futurecity glasscurtains mermaid montclair petals)
 for file in "${files[@]}"; do
     rm /usr/share/gnome-background-properties/${file}.xml
