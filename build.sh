@@ -72,5 +72,10 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 flatpak remote-modify --no-filter --enable flathub
 
 
+# Install uupd
+dnf5 -y copr enable ublue-os/packages
+dnf5 -y install uupd
+
+
 # Cleanup unused packages
 dnf5 -y remove nvtop htop
