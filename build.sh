@@ -5,19 +5,18 @@ set -ouex pipefail
 # Update release file
 sed -i -e 's/ID=silverblue/ID=workstation/g' /usr/lib/os-release
 sed -i -e 's/Silverblue/Bluefora/g' /usr/lib/os-release
-sed -i -e 's/Fedora Linux 41 (Workstation Edition)/Bluefora Linux 41 (Workstation Edition)/g' /usr/lib/os-release
+sed -i -e 's/Fedora Linux 42 (Workstation Edition)/Bluefora Linux 42 (Workstation Edition)/g' /usr/lib/os-release
 sed -i -e 's/DEFAULT_HOSTNAME="fedora"/DEFAULT_HOSTNAME="bluefora"/g' /usr/lib/os-release
 
 rpm-ostree ex rebuild
 
 # Cleanup
 dnf5 -y remove \
-    firefox \
-    firefox-langpacks \
-    f41-backgrounds-gnome \
+    firefox firefox-langpacks \
+    f42-backgrounds-gnome \
     desktop-backgrounds-gnome \
     gnome-backgrounds-extras \
-    gnome-backgrounds
+    nvtop htop
 
 
 files=(flight futurecity glasscurtains mermaid montclair petals)
@@ -75,7 +74,3 @@ flatpak remote-modify --no-filter --enable flathub
 # Install uupd
 dnf5 -y copr enable ublue-os/packages
 dnf5 -y install uupd
-
-
-# Cleanup unused packages
-dnf5 -y remove nvtop htop
