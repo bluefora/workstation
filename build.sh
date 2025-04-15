@@ -21,6 +21,7 @@ dnf5 -y remove \
 
 
 # Get uBlue installer
+mkdir /usr/local/lib64
 dnf5 -y install python3-pip && pip install topgrade && dnf5 -y install /tmp/rpms/ublue-update.noarch.rpm
 
 files=(flight futurecity glasscurtains mermaid montclair petals)
