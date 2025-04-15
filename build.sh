@@ -15,7 +15,6 @@ dnf5 -y remove \
     firefox firefox-langpacks \
     f42-backgrounds-gnome \
     desktop-backgrounds-gnome \
-    gnome-backgrounds-extras \
     nvtop htop
 
 
@@ -36,8 +35,7 @@ dnf5 -y install gnome-shell-extension-appindicator \
               gnome-shell-extension-blur-my-shell \
               gnome-shell-extension-caffeine \
               gnome-shell-extension-dash-to-panel \
-              gnome-shell-extension-just-perfection \
-              gnome-shell-extension-pop-shell
+              gnome-shell-extension-just-perfection
 
 # Disable welcome screen
 cat > /etc/dconf/db/local.d/00-disable-gnome-tour <<EOF
