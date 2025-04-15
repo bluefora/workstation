@@ -21,8 +21,10 @@ dnf5 -y remove \
 
 
 # Get uBlue installer
-mkdir -p /usr/local/lib64
-dnf5 -y install python3-pip && pip install topgrade && dnf5 -y install /tmp/rpms/ublue-update.noarch.rpm
+# TODO: Fix `pip install topgrade` command, manually added to rootcopy for now
+#dnf5 -y install python3-pip && pip install topgrade && dnf5 -y install /tmp/rpms/ublue-update.noarch.rpm
+dnf5 -y install /tmp/rpms/ublue-update.noarch.rpm
+
 
 files=(flight futurecity glasscurtains mermaid montclair petals)
 for file in "${files[@]}"; do
