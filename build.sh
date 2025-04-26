@@ -29,7 +29,7 @@ ln -s /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 
 
 # Install Apps
-dnf5 -y install gnome-tweaks gnome-extensions-app
+dnf5 -y install gnome-tweaks gnome-extensions-app unrar
 
 # Install Gnome Extensions
 dnf5 -y install gnome-shell-extension-appindicator \
