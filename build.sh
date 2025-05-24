@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -ouex pipefail
+mkdir -p /root/.gnupg
 
 # Update release file
 sed -i -e 's/ID=silverblue/ID=workstation/g' /usr/lib/os-release
