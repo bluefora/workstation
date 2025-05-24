@@ -72,3 +72,7 @@ flatpak remote-modify --no-filter --enable flathub
 # Install uupd
 dnf5 -y copr enable ublue-os/packages
 dnf5 -y install uupd
+
+# Install zerotier
+curl -s 'https://raw.githubusercontent.com/zerotier/ZeroTierOne/main/doc/contact%40zerotier.com.gpg' | gpg --import && \
+if z=$(curl -s 'https://install.zerotier.com/' | gpg); then echo "$z" | sudo bash; fi
