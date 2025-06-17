@@ -28,7 +28,7 @@ ln -s /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 
 
 # Install Apps
-dnf5 -y install gnome-tweaks gnome-extensions-app unrar nmap adb
+dnf5 -y install gnome-tweaks gnome-extensions-app unrar nmap adb waydroid
 
 # Install Gnome Extensions
 dnf5 -y install gnome-shell-extension-appindicator \
