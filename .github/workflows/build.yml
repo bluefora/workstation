@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    #- cron: '10 4 * * *'  # 4:10 - 5 Minutes after ublue-os/silverblue-main
+    - cron: '10 4 * * *'  # 4:10 - 5 Minutes after ublue-os/silverblue-main
   push:
     branches:
       - main
